@@ -1,0 +1,20 @@
+spring:
+  main:
+    web-application-type: none
+
+google:
+  url: https://www.googleapis.com/customsearch/v1
+  api:
+    key: AIzaSyAln76VKOV4e9_dXjqJ7qYLI6yDFQ9TDhs
+  cx:
+    key: d3e284ec17b4112c5
+
+bing:
+  url: https://api.bing.microsoft.com/v7.0
+  api:
+    key: 808b72a1c10946448a9ee07438de3134
+
+search:
+  criterias:
+    - java
+    - .net
