@@ -67,6 +67,26 @@ google winner: .net
 Total winner: php with total results of: 10400000006
 ==================== End Search Engine Results==================
 ```
+
+### Docker
+CustomSearchEngineResults is very easy to install and deploy in a Docker container.
+
+When ready, simply use the Dockerfile to build the image.
+
+```sh
+cd customSearchEngineResults
+docker build -t rquispe/search-engine .
+```
+This will create the search-engine image and pull in the necessary dependencies.
+
+Once done, run the Docker image:
+
+```sh
+docker run rquispe/search-engine
+```
+
+Verify it checking the console out logs with the results.
+
 ### Plugins
 
 customSearchEngineResults uses Jacoco plugin for code coverage.
@@ -87,5 +107,4 @@ $ your_project_path/target/site/jacoco/index.html
 
  - Write MORE Tests
  - Code refactor in delegate
- - Create a docker image
  - Add jenkins pipeline
