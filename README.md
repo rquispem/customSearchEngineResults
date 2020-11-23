@@ -52,7 +52,21 @@ bing:
 ### Results
 This is a simple console app, it will check criteria input in the **application.yml** file in order to seach using client search engines.
 Sample:
-
+```
+==================== Search Engine Results==================
+java: bing: 132000000
+.net: bing: 105000000
+angular: bing: 39000000
+php: bing: 10400000000
+java: google: 9710000
+.net: google: 379000000
+angular: google: 1440000
+php: google: 6
+bing winner: php
+google winner: .net
+Total winner: php with total results of: 10400000006
+==================== End Search Engine Results==================
+```
 ### Plugins
 
 customSearchEngineResults uses Jacoco plugin for code coverage.
