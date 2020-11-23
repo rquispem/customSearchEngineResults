@@ -35,8 +35,20 @@ search:
     - php
 ```    
 
-If a new Search engine is required, implement the ISearchClient interface and add the required API keys.
+If a new Search engine is required, implement the ISearchClient interface add the required logic and add the required API keys as is done for google and bing inside the **application.yml**.
+```
+google:
+  url: https://www.googleapis.com/customsearch/v1
+  api:
+    key: AIzaSyAln76VKOV4e9_dXjqJ7qYLI6yDFQ9TDhs
+  cx:
+    key: d3e284ec17b4112c5
 
+bing:
+  url: https://api.bing.microsoft.com/v7.0
+  api:
+    key: 808b72a1c10946448a9ee07438de3134
+```
 ### Results
 This is a simple console app, it will check criteria input in the **application.yml** file in order to seach using client search engines.
 Sample:
