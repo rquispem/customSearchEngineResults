@@ -29,7 +29,7 @@ public class GoogleSearchClientTest {
 
     @Test
     public void whenSearchNewWordThenReturnEngineResults() {
-        long resultQuery = googleSearchClient.search("java");
+        long resultQuery = googleSearchClient.search("java").get().getCount();
         assertTrue(resultQuery > 0);
     }
 }

@@ -1,6 +1,6 @@
 package com.tektonlabs.customSearchEngineResults;
 
-import com.tektonlabs.customSearchEngineResults.client.ISearchClient;
+import com.tektonlabs.customSearchEngineResults.delegate.SearchEngineDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -8,9 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class CustomSearchEngineResultsApplication implements CommandLineRunner {
-
-//	@Autowired
-//	ISearchClient iSearchClient;
+	@Autowired
+	SearchEngineDelegate searchEngineDelegate;
 
 	public static void main(String[] args) {
 		SpringApplication.run(CustomSearchEngineResultsApplication.class, args);
@@ -18,6 +17,6 @@ public class CustomSearchEngineResultsApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-//		System.out.println("Result: " + iSearchClient.search("java"));
+		searchEngineDelegate.showSearchEngineResults();
 	}
 }

@@ -3,11 +3,14 @@ package com.tektonlabs.customSearchEngineResults.client.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tektonlabs.customSearchEngineResults.client.ISearchClient;
+import com.tektonlabs.customSearchEngineResults.dto.SearchResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,7 +29,7 @@ public class BingSearchClient implements ISearchClient {
     }
 
     @Override
-    public long search(String query) {
+    public Optional<SearchResult> search(String query) {
         String endpoint = url + "/search?q=" + query;
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -40,11 +43,11 @@ public class BingSearchClient implements ISearchClient {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode jsonNode = mapper.readTree(forEntity.getBody());
                 String result = jsonNode.get("webPages").get("totalEstimatedMatches").asText();
-                return Long.parseLong(result);
+                return Optional.of(SearchResult.builder().query(query).client("bing").count(Long.parseLong(result)).build());
             }
         } catch (Exception ex) {
             log.error("An error occurred when retrieving results from bing search engine");
         }
-        return -1;
+        return Optional.empty();
     }
 }

@@ -28,7 +28,7 @@ public class BingSearchClientTest {
 
     @Test
     public void whenSearchNewWordThenReturnEngineResults() {
-        long resultQuery = bingSearchClient.search("java");
+        long resultQuery = bingSearchClient.search("java").get().getCount();
         assertTrue(resultQuery > 0);
     }
 }

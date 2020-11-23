@@ -18,3 +18,5 @@ search:
   criterias:
     - java
     - .net
+    - angular
+    - php

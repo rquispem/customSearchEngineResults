@@ -1,5 +1,9 @@
 package com.tektonlabs.customSearchEngineResults.client;
 
+import com.tektonlabs.customSearchEngineResults.dto.SearchResult;
+
+import java.util.Optional;
+
 public interface ISearchClient {
-    long search(String query);
+    Optional<SearchResult> search(String query);
 }
