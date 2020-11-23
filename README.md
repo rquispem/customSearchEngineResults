@@ -60,5 +60,6 @@ $ your_project_path/target/site/jacoco/index.html
 ### Todos
 
  - Write MORE Tests
+ - Code refactor in delegate
  - Create a docker image
  - Add jenkins pipeline
