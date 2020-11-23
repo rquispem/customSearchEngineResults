@@ -16,46 +16,33 @@ import java.util.Optional;
 @Component
 public class SearchEngineDelegate {
 
-    private final List<ISearchClient> searchClients;
+    private final List<ISearchClient> searchClientsEngine;
     private final AppProperties appProperties;
 
     @Autowired
-    public SearchEngineDelegate(List<ISearchClient> searchClients, AppProperties appProperties) {
-        this.searchClients = searchClients;
+    public SearchEngineDelegate(List<ISearchClient> searchClientsEngine, AppProperties appProperties) {
+        this.searchClientsEngine = searchClientsEngine;
         this.appProperties = appProperties;
-        validateInputs(searchClients, appProperties);
+        validateInputs(searchClientsEngine, appProperties);
     }
 
     public void showSearchEngineResults() {
-        Map<String, Long> queryCountsMap = new HashMap<>();
-        Map<String, SearchResult> resultMap = new HashMap<>();
+        // This map will contain all the criteria with is total count.
+        Map<String, Long> criteriaAccumulatorMap = new HashMap<>();
+        // This map will contain the winner result by client, Google Bing ..etc
+        Map<String, SearchResult> winnerByClientResultMap = new HashMap<>();
         System.out.println("\n\n\n\n");
         System.out.println("==================== Search Engine Results==================");
-        searchClients.forEach(
-                searchEngineClient -> {
-                    showPartialResults(resultMap, queryCountsMap, searchEngineClient);
-                }
+        searchClientsEngine.forEach(
+                searchEngineClient -> showPartialResults(winnerByClientResultMap, criteriaAccumulatorMap, searchEngineClient)
         );
-        showWinnerByClientAndTotal(resultMap);
-        showWinnerTotal(queryCountsMap);
+        showWinnerByClient(winnerByClientResultMap);
+        showWinnerTotal(criteriaAccumulatorMap);
         System.out.println("==================== End Search Engine Results==================");
     }
 
-    private void showWinnerTotal(Map<String, Long> queryCountsMap) {
-        long countWinner = 0;
-        String queryWinner = null;
-        for(Map.Entry<String, Long> results : queryCountsMap.entrySet()) {
-            if (results.getValue() > countWinner) {
-                countWinner = results.getValue();
-                queryWinner = results.getKey();
-            }
-        }
-        System.out.println("Total winner: " + queryWinner + " with total results of: " + countWinner);
-
-    }
-
-    private void showPartialResults(Map<String, SearchResult> resultMap,
-                                    Map<String, Long> queryCountsMap, ISearchClient iSearchClient) {
+    private void showPartialResults(Map<String, SearchResult> winnerByClientResultMap,
+                                    Map<String, Long> criteriaAccumulatorMap, ISearchClient iSearchClient) {
         String queryWinner = null;
         long countWinner = 0;
         SearchResult searchResultWinner = null;
@@ -63,11 +50,11 @@ public class SearchEngineDelegate {
             Optional<SearchResult> search = iSearchClient.search(criteria);
             if (search.isPresent()) {
                 SearchResult searchResult = search.get();
-                if (queryCountsMap.containsKey(searchResult.getQuery())) {
-                    long newValue = queryCountsMap.get(searchResult.getQuery()) + searchResult.getCount();
-                    queryCountsMap.replace(searchResult.getQuery(),newValue);
+                if (criteriaAccumulatorMap.containsKey(searchResult.getQuery())) {
+                    long newValue = criteriaAccumulatorMap.get(searchResult.getQuery()) + searchResult.getCount();
+                    criteriaAccumulatorMap.replace(searchResult.getQuery(),newValue);
                 } else {
-                    queryCountsMap.put(searchResult.getQuery(), searchResult.getCount());
+                    criteriaAccumulatorMap.put(searchResult.getQuery(), searchResult.getCount());
                 }
                 if (searchResult.getCount() > countWinner) {
                     countWinner = searchResult.getCount();
@@ -78,17 +65,26 @@ public class SearchEngineDelegate {
                         + searchResult.getCount());
             }
         }
-        resultMap.put(queryWinner, searchResultWinner);
+        winnerByClientResultMap.put(queryWinner, searchResultWinner);
     }
 
-    private void showWinnerByClientAndTotal(Map<String, SearchResult> resultMap) {
-        long maxCounter = 0;
-        for(Map.Entry<String, SearchResult> results : resultMap.entrySet()) {
-            if (results.getValue().getCount() > maxCounter) {
-                maxCounter = results.getValue().getCount();
-            }
+    private void showWinnerByClient(Map<String, SearchResult> winnerByClientResultMap) {
+        for(Map.Entry<String, SearchResult> results : winnerByClientResultMap.entrySet()) {
             System.out.println(results.getValue().getClient() + " winner: " + results.getValue().getQuery());
         }
+    }
+
+    private void showWinnerTotal(Map<String, Long> criteriaAccumulatorMap) {
+        long countWinner = 0;
+        String queryWinner = null;
+        for(Map.Entry<String, Long> results : criteriaAccumulatorMap.entrySet()) {
+            if (results.getValue() > countWinner) {
+                countWinner = results.getValue();
+                queryWinner = results.getKey();
+            }
+        }
+        System.out.println("Total winner: " + queryWinner + " with total results of: " + countWinner);
+
     }
 
     private void validateInputs(List<ISearchClient> searchClients, AppProperties appProperties) {
