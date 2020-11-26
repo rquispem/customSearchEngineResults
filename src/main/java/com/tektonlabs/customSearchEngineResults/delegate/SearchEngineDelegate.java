@@ -2,6 +2,7 @@ package com.tektonlabs.customSearchEngineResults.delegate;
 
 import com.tektonlabs.customSearchEngineResults.client.ISearchClient;
 import com.tektonlabs.customSearchEngineResults.dto.SearchResult;
+import com.tektonlabs.customSearchEngineResults.exception.RequiredConfigurationException;
 import com.tektonlabs.customSearchEngineResults.property.AppProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class SearchEngineDelegate {
         validateInputs(searchClientsEngine, appProperties);
     }
 
+    /**
+     * Starts clients in order to search for criteria in order to show results
+     */
     public void showSearchEngineResults() {
         // This map will contain all the criteria with is total count.
         Map<String, Long> criteriaAccumulatorMap = new HashMap<>();
@@ -34,15 +38,15 @@ public class SearchEngineDelegate {
         System.out.println("\n\n\n\n");
         System.out.println("==================== Search Engine Results==================");
         searchClientsEngine.forEach(
-                searchEngineClient -> showPartialResults(winnerByClientResultMap, criteriaAccumulatorMap, searchEngineClient)
+                searchEngineClient -> showResultsByClientAndCriteria(winnerByClientResultMap, criteriaAccumulatorMap, searchEngineClient)
         );
         showWinnerByClient(winnerByClientResultMap);
         showWinnerTotal(criteriaAccumulatorMap);
         System.out.println("==================== End Search Engine Results==================");
     }
 
-    private void showPartialResults(Map<String, SearchResult> winnerByClientResultMap,
-                                    Map<String, Long> criteriaAccumulatorMap, ISearchClient iSearchClient) {
+    private void showResultsByClientAndCriteria(Map<String, SearchResult> winnerByClientResultMap,
+                                                Map<String, Long> criteriaAccumulatorMap, ISearchClient iSearchClient) {
         String queryWinner = null;
         long countWinner = 0;
         SearchResult searchResultWinner = null;
@@ -50,12 +54,7 @@ public class SearchEngineDelegate {
             Optional<SearchResult> search = iSearchClient.search(criteria);
             if (search.isPresent()) {
                 SearchResult searchResult = search.get();
-                if (criteriaAccumulatorMap.containsKey(searchResult.getQuery())) {
-                    long newValue = criteriaAccumulatorMap.get(searchResult.getQuery()) + searchResult.getCount();
-                    criteriaAccumulatorMap.replace(searchResult.getQuery(),newValue);
-                } else {
-                    criteriaAccumulatorMap.put(searchResult.getQuery(), searchResult.getCount());
-                }
+                saveCriteriaSum(criteriaAccumulatorMap, searchResult);
                 if (searchResult.getCount() > countWinner) {
                     countWinner = searchResult.getCount();
                     queryWinner = searchResult.getQuery();
@@ -65,8 +64,22 @@ public class SearchEngineDelegate {
                         + searchResult.getCount());
             }
         }
+        // Save the criteria with more results by client
         winnerByClientResultMap.put(queryWinner, searchResultWinner);
     }
+
+    /*
+     * It saves the sum of the criteria to be compared in the total result and know who is the winner
+     */
+    private void saveCriteriaSum(Map<String, Long> criteriaAccumulatorMap, SearchResult searchResult) {
+        if (criteriaAccumulatorMap.containsKey(searchResult.getQuery())) {
+            long newValue = criteriaAccumulatorMap.get(searchResult.getQuery()) + searchResult.getCount();
+            criteriaAccumulatorMap.replace(searchResult.getQuery(),newValue);
+        } else {
+            criteriaAccumulatorMap.put(searchResult.getQuery(), searchResult.getCount());
+        }
+    }
+
 
     private void showWinnerByClient(Map<String, SearchResult> winnerByClientResultMap) {
         for(Map.Entry<String, SearchResult> results : winnerByClientResultMap.entrySet()) {
@@ -87,15 +100,19 @@ public class SearchEngineDelegate {
 
     }
 
+    /*
+     * It makes sure there is at least one client and criteria in order to start otherwise an
+     * RequiredConfigurationException is thrown
+     */
     private void validateInputs(List<ISearchClient> searchClients, AppProperties appProperties) {
         if (searchClients == null || searchClients.isEmpty()) {
             log.error("No client providers found");
-            throw new IllegalArgumentException("No search client providers found");
+            throw new RequiredConfigurationException("No search client providers found");
         }
 
         if (appProperties == null || appProperties.getCriterias().isEmpty()) {
             log.error("No criteria found, add them inside application.yml file");
-            throw new IllegalArgumentException("No criteria found, add them inside application.yml file");
+            throw new RequiredConfigurationException("No criteria found, add them inside application.yml file");
         }
     }
 

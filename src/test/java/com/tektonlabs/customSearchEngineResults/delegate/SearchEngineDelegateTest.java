@@ -2,6 +2,7 @@ package com.tektonlabs.customSearchEngineResults.delegate;
 
 import com.tektonlabs.customSearchEngineResults.client.ISearchClient;
 import com.tektonlabs.customSearchEngineResults.dto.SearchResult;
+import com.tektonlabs.customSearchEngineResults.exception.RequiredConfigurationException;
 import com.tektonlabs.customSearchEngineResults.property.AppProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,18 +32,18 @@ class SearchEngineDelegateTest {
     }
 
     @Test
-    void shouldReturnIllegalArgumentExceptionWhenNoClientsFound() {
+    void shouldReturnRequiredConfigurationExceptionWhenNoClientsFound() {
         appProperties = createCriteria();
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        RequiredConfigurationException exception = assertThrows(RequiredConfigurationException.class, () -> {
             searchEngineDelegate = new SearchEngineDelegate(searchClients, appProperties);
         });
         assertEquals("No search client providers found", exception.getMessage());
     }
 
     @Test
-    void shouldReturnIllegalArgumentExceptionWhenNoCriteriaFound() {
+    void shouldReturnRequiredConfigurationExceptionWhenNoCriteriaFound() {
         searchClients = createClients();
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        RequiredConfigurationException exception = assertThrows(RequiredConfigurationException.class, () -> {
             searchEngineDelegate = new SearchEngineDelegate(searchClients, appProperties);
         });
         assertEquals("No criteria found, add them inside application.yml file", exception.getMessage());
